@@ -1,6 +1,10 @@
 # Mini Library Management System
 
+<<<<<<< HEAD
 A small library app where users sign in with Google and get different permissions based on their role. There are **three roles**: **Admin**, **Librarian**, and **Member**. You can browse books, borrow and return them, and (as staff) add or manage the catalog.
+=======
+A small library app where users sign in with Google and get different permissions based on their role: **Admin**, **Librarian**, or **Member**. You can browse books, borrow and return them, and (as staff) add or manage the catalog.
+>>>>>>> c28dda50b2d3672c7a3ff7a3f4af564a901c9958
 
 ---
 
@@ -10,7 +14,11 @@ A small library app where users sign in with Google and get different permission
 
 1. Open the app and click **Continue with Google**.
 2. Choose the Google account you want to use.  
+<<<<<<< HEAD
    Your **role** is determined by the **email** of that account: if it’s set as Admin or Librarian in the database (via the seed), you get that role; otherwise you get **Member** (see [Switching between Admin and Librarian](#switching-between-admin-and-librarian) below).
+=======
+   Your **role** (Admin, Librarian, or Member) is determined by the **email** of that account in the database (see [Switching between Admin and Librarian](#switching-between-admin-and-librarian) below).
+>>>>>>> c28dda50b2d3672c7a3ff7a3f4af564a901c9958
 
 ### What you can do by role
 
