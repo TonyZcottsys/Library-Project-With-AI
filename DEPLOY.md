@@ -1,4 +1,8 @@
-# Deploy Mini Library to GitHub + Vercel
+# Deploy Mini Library
+
+Choose one: **Vercel** (if it works for you) or **Render** (free alternative, recommended below).
+
+---
 
 ## 1. Push to GitHub
 
@@ -80,3 +84,75 @@ Use the same client’s Client ID and Client Secret in Vercel env vars.
 ## 5. Optional: custom domain
 
 In the Vercel project: **Settings** → **Domains** → add your domain and follow the DNS instructions. Then set `NEXTAUTH_URL` to that domain.
+
+---
+
+# Deploy with Render (free alternative)
+
+[Render](https://render.com) offers a **free tier** for both web services and PostgreSQL. The app may spin down after ~15 minutes of inactivity (free tier); the first request after that can take 30–60 seconds to wake up.
+
+## 1. Push to GitHub
+
+Same as above: push your project to a GitHub repo (see **Section 1**).
+
+## 2. Production database on Render
+
+1. Go to https://render.com and sign in (e.g. with GitHub).
+2. **New +** → **PostgreSQL**.
+3. Create a database (e.g. name: `library-db`), choose **Free** plan, region closest to you.
+4. After creation, open the database → **Info** tab → copy **Internal Database URL** (use this for env var on Render so the app and DB are in the same region).
+
+Run migrations once from your machine (replace with your Render Postgres URL):
+
+```bash
+# Windows (PowerShell): $env:DATABASE_URL="postgresql://..."
+# Windows (CMD): set DATABASE_URL=postgresql://...
+# Mac/Linux: export DATABASE_URL="postgresql://..."
+npx prisma migrate deploy
+npm run prisma:seed
+```
+
+Or put the **External Database URL** from Render’s Connect tab in your local `.env` as `DATABASE_URL` and run the same commands.
+
+## 3. Deploy the Next.js app on Render
+
+1. **New +** → **Web Service**.
+2. Connect your GitHub repo and select the Library repo.
+3. Configure:
+   - **Name:** e.g. `mini-library`
+   - **Region:** same as your PostgreSQL (e.g. Oregon).
+   - **Branch:** `main`
+   - **Runtime:** `Node`
+   - **Build Command:** `npm install && npx prisma generate && npm run build`
+   - **Start Command:** `npx prisma migrate deploy && npm run start`
+   - **Instance Type:** **Free**
+
+4. **Environment** – add variables (use **Add Environment Variable**):
+
+   | Name                  | Value |
+   |-----------------------|--------|
+   | `DATABASE_URL`        | Your Render Postgres **Internal Database URL** (from the DB’s Info tab) |
+   | `NEXTAUTH_SECRET`     | Long random string (e.g. `openssl rand -base64 32`) |
+   | `NEXTAUTH_URL`        | `https://YOUR-SERVICE-NAME.onrender.com` (replace with your Render URL; you can set it after first deploy) |
+   | `GOOGLE_CLIENT_ID`    | Your Google OAuth client ID |
+   | `GOOGLE_CLIENT_SECRET`| Your Google OAuth client secret |
+   | `SEED_ADMIN_EMAIL`    | (optional) Email for ADMIN role |
+   | `SEED_LIBRARIAN_EMAIL`| (optional) Email for LIBRARIAN role |
+
+5. Click **Create Web Service**. Render will build and deploy. After the first deploy, copy the live URL (e.g. `https://mini-library-xxxx.onrender.com`), set **NEXTAUTH_URL** to that URL in the Render dashboard, and **Save** (Render will redeploy).
+
+## 4. Google OAuth for production
+
+In **Google Cloud Console** → APIs & Services → Credentials → your OAuth 2.0 Client:
+
+1. Under **Authorized redirect URIs** add:
+   - `https://YOUR-SERVICE-NAME.onrender.com/api/auth/callback/google`
+2. Save.
+
+Use the same Client ID and Client Secret in Render’s environment variables.
+
+## 5. Optional: other free options
+
+- **Railway** (https://railway.app): Free $5/month credit; add a PostgreSQL service and deploy from GitHub. Good if you prefer Railway’s UX.
+- **Fly.io** (https://fly.io): Free tier; you deploy with `fly launch` and can add a Postgres volume. More command-line focused.
+- **Neon + static host:** Use Neon (or Supabase) for Postgres and host the frontend on **Cloudflare Pages** or **Netlify** with Next.js; for a full Next.js API + server rendering, Render or Railway is simpler.
