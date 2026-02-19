@@ -156,3 +156,26 @@ Use the same Client ID and Client Secret in Render’s environment variables.
 - **Railway** (https://railway.app): Free $5/month credit; add a PostgreSQL service and deploy from GitHub. Good if you prefer Railway’s UX.
 - **Fly.io** (https://fly.io): Free tier; you deploy with `fly launch` and can add a Postgres volume. More command-line focused.
 - **Neon + static host:** Use Neon (or Supabase) for Postgres and host the frontend on **Cloudflare Pages** or **Netlify** with Next.js; for a full Next.js API + server rendering, Render or Railway is simpler.
+
+---
+
+## Troubleshooting: Dashboard shows 0 or empty data
+
+If the dashboard (or books, borrow history, analytics) shows **all zeros or empty lists**, the app is usually connecting to a database that has **no data** or the **wrong database**.
+
+1. **Check database connectivity**
+   - Open `https://YOUR-APP-URL/api/health` in a browser or with `curl`.
+   - If you see `"database": "connected"` and `totalBooks` / `totalBorrows` numbers, the DB is reachable and has data — the issue may be elsewhere (e.g. caching or a different environment).
+   - If you see `"database": "error"` or status **503**, the app cannot reach the DB: verify **DATABASE_URL** in your host’s environment variables (no typos, correct host/port, password, and that the DB is running).
+
+2. **Apply migrations and seed**
+   - From your machine, set **DATABASE_URL** to the **same** URL your deployed app uses (e.g. Render Internal Database URL or Neon connection string).
+   - Then run:
+     ```bash
+     npx prisma migrate deploy
+     npm run prisma:seed
+     ```
+   - Redeploy or refresh the app. The seed adds sample books and (if you set `SEED_ADMIN_EMAIL` / `SEED_LIBRARIAN_EMAIL`) assigns roles to those users.
+
+3. **Confirm the app uses the same DB**
+   - On Vercel/Render/etc., ensure **DATABASE_URL** in the dashboard is exactly the URL you used for `migrate deploy` and `prisma:seed`. If the app points to a different project or database, it will show 0/empty until that DB is migrated and seeded.
