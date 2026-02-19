@@ -1,10 +1,6 @@
 # Mini Library Management System
 
-<<<<<<< HEAD
-A small library app where users sign in with Google and get different permissions based on their role. There are **three roles**: **Admin**, **Librarian**, and **Member**. You can browse books, borrow and return them, and (as staff) add or manage the catalog.
-=======
-A small library app where users sign in with Google and get different permissions based on their role: **Admin**, **Librarian**, or **Member**. You can browse books, borrow and return them, and (as staff) add or manage the catalog.
->>>>>>> c28dda50b2d3672c7a3ff7a3f4af564a901c9958
+A small library app where users sign in with **email/password** or **Google** and get different permissions based on their role: **Admin**, **Librarian**, or **Member**. You can browse books, borrow and return them, and (as staff) add or manage the catalog.
 
 ---
 
@@ -12,13 +8,22 @@ A small library app where users sign in with Google and get different permission
 
 ### Signing in
 
-1. Open the app and click **Continue with Google**.
-2. Choose the Google account you want to use.  
-<<<<<<< HEAD
-   Your **role** is determined by the **email** of that account: if it’s set as Admin or Librarian in the database (via the seed), you get that role; otherwise you get **Member** (see [Switching between Admin and Librarian](#switching-between-admin-and-librarian) below).
-=======
-   Your **role** (Admin, Librarian, or Member) is determined by the **email** of that account in the database (see [Switching between Admin and Librarian](#switching-between-admin-and-librarian) below).
->>>>>>> c28dda50b2d3672c7a3ff7a3f4af564a901c9958
+You can sign in in two ways:
+
+**Email and password (seeded accounts)**  
+After running the database seed, three test accounts are available:
+
+| Role      | Email                     | Password       |
+|-----------|---------------------------|----------------|
+| Member    | `member@library.local`    | `Member123!`   |
+| Librarian | `librarian@library.local` | `Librarian123!` |
+| Admin     | `admin@library.local`     | `Admin123!`    |
+
+Use these on the sign-in page with "Sign in with email".
+
+**Google**  
+1. Click **Continue with Google** and choose your Google account.  
+2. Your **role** (Admin, Librarian, or Member) is determined by the **email** of that account in the database (see [Switching between Admin and Librarian](#switching-between-admin-and-librarian) below).
 
 ### What you can do by role
 

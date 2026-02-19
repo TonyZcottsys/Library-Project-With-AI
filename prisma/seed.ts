@@ -1,7 +1,8 @@
 // @ts-nocheck
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -13,6 +14,13 @@ const pool = new Pool({
 const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({ adapter });
+
+// Seeded accounts for email/password sign-in (member, librarian, admin)
+const SEED_ACCOUNTS = [
+  { email: "member@library.local", password: "Member123!", name: "Member", role: "MEMBER" as const },
+  { email: "librarian@library.local", password: "Librarian123!", name: "Librarian", role: "LIBRARIAN" as const },
+  { email: "admin@library.local", password: "Admin123!", name: "Admin", role: "ADMIN" as const }
+];
 
 const sampleBooks = [
   {
@@ -51,9 +59,24 @@ const sampleBooks = [
 ];
 
 async function main() {
+  // Seed member, librarian, and admin accounts with hashed passwords (email/password sign-in)
+  for (const acc of SEED_ACCOUNTS) {
+    const hashedPassword = await bcrypt.hash(acc.password, 10);
+    await prisma.user.upsert({
+      where: { email: acc.email },
+      update: { password: hashedPassword, role: acc.role, name: acc.name },
+      create: {
+        email: acc.email,
+        password: hashedPassword,
+        role: acc.role,
+        name: acc.name
+      }
+    });
+  }
+
+  // Optional: promote additional Google accounts to ADMIN/LIBRARIAN by email
   const adminEmail = process.env.SEED_ADMIN_EMAIL;
   const librarianEmail = process.env.SEED_LIBRARIAN_EMAIL;
-
   if (adminEmail) {
     await prisma.user.upsert({
       where: { email: adminEmail },
@@ -61,7 +84,6 @@ async function main() {
       create: { email: adminEmail, role: "ADMIN", name: "Admin" }
     });
   }
-
   if (librarianEmail) {
     await prisma.user.upsert({
       where: { email: librarianEmail },
